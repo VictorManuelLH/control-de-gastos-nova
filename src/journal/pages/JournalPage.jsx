@@ -36,6 +36,7 @@ export const JournalPage = () => {
                         right: 50, 
                         bottom: 50 }}>
                 <AddOutlined sx={{ fontSize: 30 }} />
+                
             </IconButton>
         </JournalLayout>
     )

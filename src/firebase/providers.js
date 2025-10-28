@@ -49,26 +49,58 @@ export const registerUserWithEmailAndPassword = async({ email, password, display
 }
 
 export const loginWithEmailAndPassword = async({ email, password }) => {
-
     try {
+        console.log("🔐 Intentando login con:", email);
+        console.log("🔥 Auth instance:", FireBaseAuth);
         
-        const resultado = await signInWithEmailAndPassword( FireBaseAuth, email, password )
-        const { displayName, photoURL, uid } = resultado.user
+        const resultado = await signInWithEmailAndPassword(FireBaseAuth, email, password);
+        const { displayName, photoURL, uid } = resultado.user;
         
-        return{
+        console.log("✅ Login exitoso:", uid);
+        
+        return {
             ok: true,
-            displayName, email, photoURL, uid
+            displayName, 
+            email, 
+            photoURL, 
+            uid
         }
 
     } catch (error) {
-        const errorCode = error.code;
-        const errorMessage = error.message
+        console.error("❌ Error en login:", error);
+        
+        // Manejo específico de errores de Firebase
+        let errorMessage = "Error desconocido";
+        
+        switch (error.code) {
+            case 'auth/invalid-email':
+                errorMessage = "El formato del email es inválido";
+                break;
+            case 'auth/user-disabled':
+                errorMessage = "Este usuario ha sido deshabilitado";
+                break;
+            case 'auth/user-not-found':
+                errorMessage = "No existe usuario con este email";
+                break;
+            case 'auth/wrong-password':
+                errorMessage = "Contraseña incorrecta";
+                break;
+            case 'auth/too-many-requests':
+                errorMessage = "Demasiados intentos fallidos. Intenta más tarde";
+                break;
+            case 'auth/network-request-failed':
+                errorMessage = "Error de conexión a internet";
+                break;
+            default:
+                errorMessage = error.message || "Error al iniciar sesión";
+        }
+        
         return {
             ok: false,
             errorMessage,
+            errorCode: error.code
         }
     }
-
 }
 
 export const logoutFirebase = async() => {

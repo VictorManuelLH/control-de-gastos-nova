@@ -1,46 +1,17 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore/lite";
-import { getEnviroments } from "../helper/getEnviroments";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-const {
-    VITE_APIKEY,
-    VITE_APIKEYOPENIA,
-    VITE_AUTHDOMAIN,
-    VITE_PROJECTID,
-    VITE_STORAGEBUCKET,
-    VITE_MESSAGINGSENDERID,
-    VITE_APPID,
-} = getEnviroments()
-// console.log( process.env )
-// console.log( import.meta.env )
-
-// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyC3hwP1f66IiwrVD0U5EdI31ucymIv0h0s",
-    authDomain: "react-cursos-d23b2.firebaseapp.com",
-    projectId: "react-cursos-d23b2",
-    storageBucket: "react-cursos-d23b2.appspot.com",
-    messagingSenderId: "929068013753",
-    appId: "1:929068013753:web:5aa6a7c2ab4d0d74c2e368"
+  apiKey: "AIzaSyCmVrGjTUTeVxE2wi9MJ3pKnB9Q3vJax1o",
+  authDomain: "control-gastos-6d509.firebaseapp.com",
+  projectId: "control-gastos-6d509",
+  storageBucket: "control-gastos-6d509.firebasestorage.app",
+  messagingSenderId: "1058216943885",
+  appId: "1:1058216943885:web:c413f26de626ded7c95044",
+  measurementId: "G-TYHWB4GMBW"
 };
 
-// Testing
-// const firebaseConfig = {
-//     apiKey: VITE_APIKEY,
-//     authDomain: VITE_AUTHDOMAIN,
-//     projectId: VITE_PROJECTID,
-//     storageBucket: VITE_STORAGEBUCKET,
-//     messagingSenderId: VITE_MESSAGINGSENDERID,
-//     appId: VITE_APPID,
-// };
-
-// console.log( firebaseConfig )
-
-// Initialize Firebase
 export const FireBaseApp = initializeApp(firebaseConfig);
-export const FireBaseAuth = getAuth( FireBaseApp )
-export const FireBaseDB = getFirestore( FireBaseApp )
+export const FireBaseAuth = getAuth(FireBaseApp);
+export const FireBaseDB = getFirestore(FireBaseApp);
