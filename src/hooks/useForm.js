@@ -1,50 +1,64 @@
 import { useEffect, useMemo, useState } from 'react';
 
-export const useForm = ( initialForm = {}, formValidations = {} ) => {
-
-    const [ formState, setFormState ] = useState( initialForm );
-    const [formValidation, setformValidation] = useState({})
+/**
+ * Hook personalizado para manejar formularios con validación
+ * @param {Object} initialForm - Estado inicial del formulario
+ * @param {Object} formValidations - Objeto con funciones de validación para cada campo
+ * @returns {Object} Estado del formulario y funciones para manejarlo
+ */
+export const useForm = (initialForm = {}, formValidations = {}) => {
+    const [formState, setFormState] = useState(initialForm);
+    const [formValidation, setFormValidation] = useState({});
 
     useEffect(() => {
-        createValidators()
-    }, [ formState ])
+        createValidators();
+    }, [formState]);
 
     useEffect(() => {
-        setFormState( initialForm )
-    }, [initialForm])
-    
+        setFormState(initialForm);
+    }, [initialForm]);
 
-    const isFormValid = useMemo( () => {
-        for (const formValue of Object.keys( formValidation )) {
-            if( formValidation[formValue] !== null ) return false
+    /**
+     * Verifica si el formulario es válido
+     */
+    const isFormValid = useMemo(() => {
+        for (const formValue of Object.keys(formValidation)) {
+            if (formValidation[formValue] !== null) return false;
         }
-        return true
-    }, [ formValidation ] )
-    
+        return true;
+    }, [formValidation]);
 
+    /**
+     * Maneja el cambio de un input
+     */
     const onInputChange = ({ target }) => {
         const { name, value } = target;
         setFormState({
             ...formState,
-            [ name ]: value
+            [name]: value
         });
-    }
+    };
 
+    /**
+     * Reinicia el formulario a su estado inicial
+     */
     const onResetForm = () => {
-        setFormState( initialForm );
-    }
+        setFormState(initialForm);
+    };
 
+    /**
+     * Crea los validadores para cada campo del formulario
+     */
     const createValidators = () => {
-        const formChackedValues = {}
+        const formCheckedValues = {};
 
-        
-        for (const formField of Object.keys( formValidations )) {
-            const [ fn, errorMessage ] = formValidations[ formField ]
-            formChackedValues[`${formField}Valid`] = fn( formState[formField] ) ? null : errorMessage
-            
+        for (const formField of Object.keys(formValidations)) {
+            const [validatorFn, errorMessage] = formValidations[formField];
+            formCheckedValues[`${formField}Valid`] = validatorFn(formState[formField]) ? null : errorMessage;
         }
-        setformValidation( formChackedValues )        
-    }
+
+        setFormValidation(formCheckedValues);
+    };
 
     return {
         ...formState,
@@ -53,5 +67,5 @@ export const useForm = ( initialForm = {}, formValidations = {} ) => {
         onResetForm,
         ...formValidation,
         isFormValid
-    }
-}
+    };
+};

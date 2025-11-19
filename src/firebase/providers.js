@@ -1,110 +1,117 @@
-import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
-import { FireBaseAuth } from "./config";
+import {
+    GoogleAuthProvider,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    updateProfile
+} from "firebase/auth";
+import { firebaseAuth } from "./config";
+import { FIREBASE_ERROR_MESSAGES } from "../constants";
 
-const googleProvider = new GoogleAuthProvider()
-
+// Configurar proveedor de Google
+const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
     prompt: 'select_account'
-})
+});
 
-export const singInGoogle = async() => {
+/**
+ * Inicia sesión con Google
+ * @returns {Promise<Object>} Resultado de la operación con datos del usuario o error
+ */
+export const signInWithGoogle = async () => {
     try {
-        const result = await signInWithPopup( FireBaseAuth, googleProvider )
-        // const credentials = GoogleAuthProvider.credentialFromResult( result )
-        const { displayName, email, photoURL, uid } = result.user
-        
-        return{
-            ok: true,
-            displayName, email, photoURL, uid
-        }
-        
-    } catch (error) {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        return {
-            ok: false,
-            errorMessage,
-        }
-    }
-}
+        const result = await signInWithPopup(firebaseAuth, googleProvider);
+        const { displayName, email, photoURL, uid } = result.user;
 
-export const registerUserWithEmailAndPassword = async({ email, password, displayName }) => {
-
-    try {
-        
-        const respuesta = await createUserWithEmailAndPassword( FireBaseAuth, email, password )
-        const { uid, photoURL } = respuesta.user
-
-        await updateProfile( FireBaseAuth.currentUser, { displayName } )
-
-        return{
-            ok: true, 
-            uid, photoURL, email, displayName
-        }
-
-    } catch (error) {
-        return { ok: false, errorMessage: error.message }
-    }
-
-}
-
-export const loginWithEmailAndPassword = async({ email, password }) => {
-    try {
-        console.log("🔐 Intentando login con:", email);
-        console.log("🔥 Auth instance:", FireBaseAuth);
-        
-        const resultado = await signInWithEmailAndPassword(FireBaseAuth, email, password);
-        const { displayName, photoURL, uid } = resultado.user;
-        
-        console.log("✅ Login exitoso:", uid);
-        
         return {
             ok: true,
-            displayName, 
-            email, 
-            photoURL, 
+            displayName,
+            email,
+            photoURL,
             uid
-        }
+        };
 
     } catch (error) {
-        console.error("❌ Error en login:", error);
-        
-        // Manejo específico de errores de Firebase
-        let errorMessage = "Error desconocido";
-        
-        switch (error.code) {
-            case 'auth/invalid-email':
-                errorMessage = "El formato del email es inválido";
-                break;
-            case 'auth/user-disabled':
-                errorMessage = "Este usuario ha sido deshabilitado";
-                break;
-            case 'auth/user-not-found':
-                errorMessage = "No existe usuario con este email";
-                break;
-            case 'auth/wrong-password':
-                errorMessage = "Contraseña incorrecta";
-                break;
-            case 'auth/too-many-requests':
-                errorMessage = "Demasiados intentos fallidos. Intenta más tarde";
-                break;
-            case 'auth/network-request-failed':
-                errorMessage = "Error de conexión a internet";
-                break;
-            default:
-                errorMessage = error.message || "Error al iniciar sesión";
-        }
-        
+        const errorMessage = FIREBASE_ERROR_MESSAGES[error.code] || FIREBASE_ERROR_MESSAGES.default;
         return {
             ok: false,
             errorMessage,
             errorCode: error.code
-        }
+        };
     }
-}
+};
 
-export const logoutFirebase = async() => {
+// Mantener exportación legacy por compatibilidad
+export const singInGoogle = signInWithGoogle;
 
-    return await FireBaseAuth.signOut()
+/**
+ * Registra un nuevo usuario con email y contraseña
+ * @param {Object} userData - Datos del usuario
+ * @param {string} userData.email - Email del usuario
+ * @param {string} userData.password - Contraseña del usuario
+ * @param {string} userData.displayName - Nombre a mostrar del usuario
+ * @returns {Promise<Object>} Resultado de la operación con datos del usuario o error
+ */
+export const registerUserWithEmailAndPassword = async ({ email, password, displayName }) => {
+    try {
+        const response = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+        const { uid, photoURL } = response.user;
 
-}
+        await updateProfile(firebaseAuth.currentUser, { displayName });
+
+        return {
+            ok: true,
+            uid,
+            photoURL,
+            email,
+            displayName
+        };
+
+    } catch (error) {
+        const errorMessage = FIREBASE_ERROR_MESSAGES[error.code] || FIREBASE_ERROR_MESSAGES.default;
+        return {
+            ok: false,
+            errorMessage,
+            errorCode: error.code
+        };
+    }
+};
+
+/**
+ * Inicia sesión con email y contraseña
+ * @param {Object} credentials - Credenciales del usuario
+ * @param {string} credentials.email - Email del usuario
+ * @param {string} credentials.password - Contraseña del usuario
+ * @returns {Promise<Object>} Resultado de la operación con datos del usuario o error
+ */
+export const loginWithEmailAndPassword = async ({ email, password }) => {
+    try {
+        const result = await signInWithEmailAndPassword(firebaseAuth, email, password);
+        const { displayName, photoURL, uid } = result.user;
+
+        return {
+            ok: true,
+            displayName,
+            email,
+            photoURL,
+            uid
+        };
+
+    } catch (error) {
+        const errorMessage = FIREBASE_ERROR_MESSAGES[error.code] || FIREBASE_ERROR_MESSAGES.default;
+
+        return {
+            ok: false,
+            errorMessage,
+            errorCode: error.code
+        };
+    }
+};
+
+/**
+ * Cierra la sesión del usuario actual
+ * @returns {Promise<void>}
+ */
+export const logoutFirebase = async () => {
+    return await firebaseAuth.signOut();
+};

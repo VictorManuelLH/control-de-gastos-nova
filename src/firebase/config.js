@@ -1,17 +1,35 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore/lite";
+import { getEnvironments } from "../helper/getEnviroments";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCmVrGjTUTeVxE2wi9MJ3pKnB9Q3vJax1o",
-  authDomain: "control-gastos-6d509.firebaseapp.com",
-  projectId: "control-gastos-6d509",
-  storageBucket: "control-gastos-6d509.firebasestorage.app",
-  messagingSenderId: "1058216943885",
-  appId: "1:1058216943885:web:c413f26de626ded7c95044",
-  measurementId: "G-TYHWB4GMBW"
+/**
+ * Obtiene la configuración de Firebase desde las variables de entorno
+ * @returns {Object} Configuración de Firebase
+ */
+const getFirebaseConfig = () => {
+  const env = getEnvironments();
+
+  return {
+    apiKey: env.VITE_APIKEY,
+    authDomain: env.VITE_AUTHDOMAIN,
+    projectId: env.VITE_PROJECTID,
+    storageBucket: env.VITE_STORAGEBUCKET,
+    messagingSenderId: env.VITE_MESSAGINGSENDERID,
+    appId: env.VITE_APPID,
+    measurementId: env.VITE_MEASUREMENTID
+  };
 };
 
-export const FireBaseApp = initializeApp(firebaseConfig);
-export const FireBaseAuth = getAuth(FireBaseApp);
-export const FireBaseDB = getFirestore(FireBaseApp);
+// Inicializar Firebase con la configuración
+const firebaseConfig = getFirebaseConfig();
+
+// Exportar instancias de Firebase
+export const firebaseApp = initializeApp(firebaseConfig);
+export const firebaseAuth = getAuth(firebaseApp);
+export const firebaseDB = getFirestore(firebaseApp);
+
+// Mantener exportaciones legacy por compatibilidad
+export const FireBaseApp = firebaseApp;
+export const FireBaseAuth = firebaseAuth;
+export const FireBaseDB = firebaseDB;

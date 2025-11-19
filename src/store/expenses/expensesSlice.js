@@ -1,104 +1,151 @@
-// src/store/expenses/expensesSlice.js
 import { createSlice } from '@reduxjs/toolkit';
+import { LocalStorageService } from '../../services/localStorage.service';
 
+/**
+ * Estado inicial del slice de expenses
+ */
 const initialState = {
-  expenses: JSON.parse(localStorage.getItem('expenses')) || [],
+    isSaving: false,
+    messageSaved: '',
+    transactions: LocalStorageService.getExpenses(),
+    active: null,
+    filters: {
+        type: null, // 'expense' | 'income' | null (todos)
+        category: null,
+        startDate: null,
+        endDate: null,
+        searchTerm: ''
+    },
+    statistics: {
+        totalExpenses: 0,
+        totalIncome: 0,
+        balance: 0,
+        expensesByCategory: [],
+        monthlyTrend: []
+    }
 };
 
+/**
+ * Slice de Redux para manejar el estado de gastos e ingresos
+ */
 export const expensesSlice = createSlice({
-  name: 'expenses',
-  initialState,
-  reducers: {
-    setExpenses: (state, action) => {
-      state.expenses = action.payload;
-      localStorage.setItem('expenses', JSON.stringify(state.expenses));
-    },
-    addExpense: (state, action) => {
-      state.expenses.push(action.payload);
-      localStorage.setItem('expenses', JSON.stringify(state.expenses));
-    },
-    deleteExpense: (state, action) => {
-      state.expenses = state.expenses.filter(exp => exp.id !== action.payload);
-      localStorage.setItem('expenses', JSON.stringify(state.expenses));
-    },
-  },
+    name: 'expenses',
+    initialState,
+    reducers: {
+        /**
+         * Indica que se está guardando una transacción
+         */
+        startSaving: (state) => {
+            state.isSaving = true;
+        },
+
+        /**
+         * Agrega una nueva transacción (gasto o ingreso)
+         */
+        addNewTransaction: (state, action) => {
+            state.transactions.push(action.payload);
+            state.isSaving = false;
+            LocalStorageService.saveExpenses(state.transactions);
+            state.messageSaved = `${action.payload.type === 'expense' ? 'Gasto' : 'Ingreso'} agregado correctamente`;
+        },
+
+        /**
+         * Establece la transacción activa
+         */
+        setActiveTransaction: (state, action) => {
+            state.active = action.payload;
+            state.messageSaved = '';
+        },
+
+        /**
+         * Establece todas las transacciones
+         */
+        setTransactions: (state, action) => {
+            state.transactions = action.payload;
+            LocalStorageService.saveExpenses(state.transactions);
+        },
+
+        /**
+         * Actualiza una transacción existente
+         */
+        updateTransaction: (state, action) => {
+            state.isSaving = false;
+            state.transactions = state.transactions.map(transaction =>
+                transaction.id === action.payload.id ? action.payload : transaction
+            );
+            LocalStorageService.saveExpenses(state.transactions);
+            state.messageSaved = `Transacción actualizada correctamente`;
+        },
+
+        /**
+         * Elimina una transacción por su ID
+         */
+        deleteTransactionById: (state, action) => {
+            state.active = null;
+            state.transactions = state.transactions.filter(transaction => transaction.id !== action.payload);
+            LocalStorageService.saveExpenses(state.transactions);
+            state.messageSaved = 'Transacción eliminada correctamente';
+        },
+
+        /**
+         * Establece los filtros de búsqueda
+         */
+        setFilters: (state, action) => {
+            state.filters = { ...state.filters, ...action.payload };
+        },
+
+        /**
+         * Limpia todos los filtros
+         */
+        clearFilters: (state) => {
+            state.filters = {
+                type: null,
+                category: null,
+                startDate: null,
+                endDate: null,
+                searchTerm: ''
+            };
+        },
+
+        /**
+         * Actualiza las estadísticas calculadas
+         */
+        updateStatistics: (state, action) => {
+            state.statistics = action.payload;
+        },
+
+        /**
+         * Limpia todas las transacciones al cerrar sesión
+         */
+        clearTransactionsLogout: (state) => {
+            state.isSaving = false;
+            state.messageSaved = '';
+            state.transactions = [];
+            state.active = null;
+            state.filters = initialState.filters;
+            state.statistics = initialState.statistics;
+            LocalStorageService.clearExpenses();
+        },
+
+        /**
+         * Limpia el mensaje guardado
+         */
+        clearMessage: (state) => {
+            state.messageSaved = '';
+        }
+    }
 });
 
-export const { setExpenses, addExpense, deleteExpense } = expensesSlice.actions;
-
-
-// 
-
-// import { createSlice } from '@reduxjs/toolkit';
-
-// const initialState = {
-//   isSaving: false,
-//   messageSaved: '',
-//   expenses: JSON.parse(localStorage.getItem('expenses')) || [],
-//   active: null,
-//   categories: ['Comida', 'Transporte', 'Entretenimiento', 'Hogar', 'Otros'],
-// };
-
-// export const expensesSlice = createSlice({
-//   name: 'expenses',
-//   initialState,
-//   reducers: {
-//     startSavingExpense: (state) => {
-//       state.isSaving = true;
-//     },
-
-//     addNewExpense: (state, action) => {
-//       state.expenses.push(action.payload);
-//       state.isSaving = false;
-//       localStorage.setItem('expenses', JSON.stringify(state.expenses));
-//     },
-
-//     setActiveExpense: (state, action) => {
-//       state.active = action.payload;
-//       state.messageSaved = '';
-//       const index = state.expenses.findIndex(exp => exp.id === action.payload.id);
-//       if (index !== -1) {
-//         state.expenses[index] = state.active;
-//       }
-//       localStorage.setItem('expenses', JSON.stringify(state.expenses));
-//     },
-
-//     setExpenses: (state, action) => {
-//       state.expenses = action.payload;
-//       localStorage.setItem('expenses', JSON.stringify(state.expenses));
-//     },
-
-//     updateExpense: (state, action) => {
-//       state.isSaving = false;
-//       state.expenses = state.expenses.map(exp =>
-//         exp.id === action.payload.id ? action.payload : exp
-//       );
-//       localStorage.setItem('expenses', JSON.stringify(state.expenses));
-//       state.messageSaved = `Gasto "${action.payload.description}" actualizado correctamente.`;
-//     },
-
-//     deleteExpenseById: (state, action) => {
-//       state.active = null;
-//       state.expenses = state.expenses.filter(exp => exp.id !== action.payload);
-//       localStorage.setItem('expenses', JSON.stringify(state.expenses));
-//     },
-
-//     clearExpensesLogout: (state) => {
-//       state.isSaving = false;
-//       state.messageSaved = '';
-//       state.expenses = [];
-//       state.active = null;
-//       localStorage.removeItem('expenses');
-//     },
-//   },
-// });
-
-// export const {
-//   startSavingExpense,
-//   addNewExpense,
-//   setActiveExpense,
-//   setExpenses,
-//   updateExpense,
-//   deleteExpenseById,
-//   clearExpensesLogout,
-// } = expensesSlice.actions;
+export const {
+    startSaving,
+    addNewTransaction,
+    setActiveTransaction,
+    setTransactions,
+    updateTransaction,
+    deleteTransactionById,
+    setFilters,
+    clearFilters,
+    updateStatistics,
+    clearTransactionsLogout,
+    clearMessage
+} = expensesSlice.actions;

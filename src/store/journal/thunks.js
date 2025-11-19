@@ -21,6 +21,7 @@ export const startNewNote = () => {
         };
 
         try {
+            // Ruta definitiva: {uid}/journal/notes
             const newDoc = doc(collection(FireBaseDB, `${uid}/journal/notes`));
 
             await setDoc(newDoc, newNote);
@@ -39,25 +40,53 @@ export const togglePinNoteFirebase = (id, isPinned) => {
     return async (dispatch, getState) => {
         dispatch(startSaving());
 
-        const { uid } = getState().auth;
-        const { notes } = getState().journal;
-        const note = notes.find(note => note.id === id);
+        try {
+            const { uid } = getState().auth;
+            const { notes } = getState().journal;
+            const note = notes.find(note => note.id === id);
 
-        const noteRef = doc(FireBaseDB, `${uid}/journal/notes/${id}`);
-        
-        await updateDoc(noteRef, {
-            isPinned: !isPinned
-        });
+            if (!note) {
+                console.error('❌ togglePinNote - Nota no encontrada:', id);
+                return;
+            }
 
-        dispatch(updateNote({
-            id: id,
-            isPinned: !isPinned,
-            title: note.title,
-            body: note.body,
-            conversation: note.conversation || [],
-            newField: note.newField,
-            date: new Date().getTime(),
-        }));
+            const newPinnedState = !isPinned;
+            console.log(`📌 Cambiando estado de fijado de nota ${id} a:`, newPinnedState);
+
+            // Ruta definitiva: {uid}/journal/notes
+            const noteRef = doc(FireBaseDB, `${uid}/journal/notes/${id}`);
+
+            // Actualizar en Firestore
+            await updateDoc(noteRef, {
+                isPinned: newPinnedState
+            });
+
+            console.log('✅ Estado de fijado actualizado en Firestore');
+
+            // Actualizar la nota completa con el nuevo estado de isPinned
+            // IMPORTANTE: No cambiar la fecha, solo el estado de isPinned
+            const updatedNote = {
+                ...note,
+                isPinned: newPinnedState
+            };
+
+            // Actualizar en localStorage
+            const localNotes = JSON.parse(localStorage.getItem('notes')) || [];
+            const updatedLocalNotes = localNotes.map(n =>
+                n.id === id ? updatedNote : n
+            );
+            localStorage.setItem('notes', JSON.stringify(updatedLocalNotes));
+
+            // Actualizar en Redux
+            dispatch(togglePinNote(id));
+
+            console.log(`✅ Nota ${newPinnedState ? 'fijada' : 'desfijada'} correctamente`);
+
+        } catch (error) {
+            console.error('❌ Error al cambiar estado de fijado:', error);
+            console.error('Error code:', error.code);
+            console.error('Error message:', error.message);
+        }
     };
 };
 
@@ -76,6 +105,7 @@ export const startSaveNote = () => {
 
         delete noteToFireStore.id;
 
+        // Ruta definitiva: {uid}/journal/notes
         const docRef = doc(FireBaseDB, `${uid}/journal/notes/${note.id}`);
 
         await setDoc(docRef, noteToFireStore, { merge: true });
@@ -153,6 +183,7 @@ export const startCleanConversation = () => {
 
         dispatch(clearConversation());
 
+        // Ruta definitiva: {uid}/journal/notes
         const noteRef = doc(FireBaseDB, `${uid}/journal/notes/${note.id}`);
 
         await updateDoc(noteRef, {
@@ -176,6 +207,7 @@ export const startDeletingNote = () => {
         const { uid } = getState().auth;
         const { active: note } = getState().journal;
 
+        // Ruta definitiva: {uid}/journal/notes
         const docRef = doc(FireBaseDB, `${uid}/journal/notes/${note.id}`);
 
         const respuesta = await deleteDoc(docRef);
