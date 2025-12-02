@@ -8,7 +8,7 @@ import {
     updateTransaction,
     deleteTransactionById
 } from './expensesSlice';
-import { telegramService } from '../../services';
+import { telegramService, notificationTrackingService, pwaNotificationService } from '../../services';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, BUDGET_PERIODS } from '../../constants';
 
 /**
@@ -90,18 +90,46 @@ const checkBudgetAlertsAfterTransaction = async (transaction, budgets, allTransa
         const percentage = (totalSpent / budget.amount) * 100;
         const remaining = budget.amount - totalSpent;
 
-        // Obtener nombre de la categoría
-        const categoryName = EXPENSE_CATEGORIES.find(c => c.id === budget.categoryId)?.name || budget.categoryId;
+        // Verificar si se debe enviar alerta (usando el servicio de tracking)
+        const { shouldSend, threshold } = notificationTrackingService.shouldSendBudgetAlert(
+            budget.id,
+            percentage
+        );
 
-        // Enviar alerta si alcanza umbrales (80%, 90%, 100%)
-        if (percentage >= 80) {
-            await telegramService.sendBudgetAlert({
+        if (shouldSend && threshold) {
+            // Obtener nombre de la categoría
+            const categoryName = EXPENSE_CATEGORIES.find(c => c.id === budget.categoryId)?.name || budget.categoryId;
+
+            // Enviar notificación PWA in-app
+            pwaNotificationService.notifyBudgetAlert({
                 category: categoryName,
                 budget: budget.amount,
                 spent: totalSpent,
                 percentage: percentage,
                 remaining: remaining
             });
+
+            // Enviar alerta de Telegram si está configurado
+            if (telegramService.isConfigured()) {
+                const result = await telegramService.sendBudgetAlert({
+                    category: categoryName,
+                    budget: budget.amount,
+                    spent: totalSpent,
+                    percentage: percentage,
+                    remaining: remaining
+                });
+
+                if (result.success) {
+                    console.log(`✅ Alerta de presupuesto enviada a Telegram: ${categoryName} - ${threshold}%`);
+                }
+            }
+
+            // Marcar como enviada
+            notificationTrackingService.markBudgetAlertAsSent(budget.id, threshold, percentage);
+            console.log(`✅ Alerta de presupuesto enviada: ${categoryName} - ${threshold}%`);
+        } else if (percentage < 80) {
+            // Si el porcentaje bajó de 80%, resetear las alertas de este presupuesto
+            notificationTrackingService.resetBudgetAlerts(budget.id, percentage);
         }
     }
 };
@@ -138,17 +166,31 @@ export const startNewTransaction = (transactionData) => {
             const { budgets } = state.budgets;
             const { transactions } = state.expenses;
 
-            // Enviar notificación de transacción (solo para montos significativos > $100)
-            if (telegramService.isConfigured() && newTransaction.amount > 100) {
-                const categories = newTransaction.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-                const categoryName = categories.find(c => c.id === newTransaction.category)?.name || newTransaction.category;
+            // Enviar notificación de transacción
+            const categories = newTransaction.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+            const categoryName = categories.find(c => c.id === newTransaction.category)?.name || newTransaction.category;
 
-                await telegramService.sendTransactionNotification({
+            // Siempre enviar notificación PWA in-app
+            pwaNotificationService.notifyTransaction({
+                type: newTransaction.type,
+                amount: newTransaction.amount,
+                category: categoryName,
+                description: newTransaction.description || ''
+            });
+
+            // Enviar a Telegram solo si está configurado y cumple preferencias
+            if (telegramService.isConfigured() &&
+                notificationTrackingService.shouldSendTransactionNotification(newTransaction)) {
+                const result = await telegramService.sendTransactionNotification({
                     type: newTransaction.type,
                     amount: newTransaction.amount,
                     category: categoryName,
                     description: newTransaction.description || ''
                 });
+
+                if (result.success) {
+                    console.log('✅ Notificación de transacción enviada a Telegram');
+                }
             }
 
             // Verificar presupuestos y enviar alertas si es necesario

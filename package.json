@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "deploy": "npx vercel --prod"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",

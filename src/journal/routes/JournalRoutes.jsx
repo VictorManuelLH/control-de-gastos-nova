@@ -1,14 +1,15 @@
 import { Navigate, Route, Routes } from "react-router-dom"
-import { JournalPage } from "../pages"
-import { ExpensesPage, BudgetsPage, TelegramConfigPage } from "../../expenses/pages"
+import { DashboardPage, ExpensesPage, BudgetsPage, TelegramConfigPage, NotificationSettingsPage, RecurringPage } from "../../expenses/pages"
 
 export const JournalRoutes = () => {
     return (
         <Routes>
-            <Route path="/" element={ <JournalPage /> } />
+            <Route path="/" element={ <DashboardPage /> } />
             <Route path="/expenses" element={ <ExpensesPage /> } />
             <Route path="/budgets" element={ <BudgetsPage /> } />
+            <Route path="/recurring" element={ <RecurringPage /> } />
             <Route path="/telegram" element={ <TelegramConfigPage /> } />
+            <Route path="/notifications" element={ <NotificationSettingsPage /> } />
 
             <Route path="/*" element={ <Navigate to="/" /> } />
         </Routes>

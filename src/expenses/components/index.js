@@ -5,3 +5,7 @@ export * from './IncomeVsExpensesChart';
 export * from './BudgetProgressBar';
 export * from './BudgetCard';
 export * from './BudgetModal';
+export * from './StatCard';
+export * from './BudgetAlerts';
+export * from './UpcomingPayments';
+export * from './QuickActions';

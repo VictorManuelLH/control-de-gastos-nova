@@ -66,3 +66,6 @@ export * from './expenses';
 
 // Exportar constantes de presupuestos
 export * from './budgets';
+
+// Exportar constantes de gastos recurrentes
+export * from './recurring';

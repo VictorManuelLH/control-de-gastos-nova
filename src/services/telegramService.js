@@ -170,7 +170,7 @@ ${percentage >= 100
      * Envía resumen diario
      */
     async sendDailySummary(summaryData) {
-        const { date, totalExpenses, totalIncome, balance, transactionsCount } = summaryData;
+        const { date, totalExpenses, totalIncome, balance, transactionsCount, topCategory } = summaryData;
 
         const balanceEmoji = balance >= 0 ? '✅' : '❌';
         const balanceText = balance >= 0 ? 'Positivo' : 'Negativo';
@@ -183,11 +183,129 @@ ${percentage >= 100
 💸 Gastos: ${this.formatCurrency(totalExpenses)}
 ${balanceEmoji} Balance: ${this.formatCurrency(balance)} (${balanceText})
 
-📝 Transacciones registradas: ${transactionsCount}
+📝 Transacciones: ${transactionsCount}
+${topCategory ? `🔝 Mayor gasto: ${topCategory.name} (${this.formatCurrency(topCategory.amount)})` : ''}
 
 ${balance >= 0
     ? '🎉 ¡Buen trabajo! Tuviste un día con balance positivo.'
     : '💡 Recuerda controlar tus gastos para mantener el balance.'
+}
+        `.trim();
+
+        return this.sendMessage(message);
+    }
+
+    /**
+     * Envía resumen semanal
+     */
+    async sendWeeklySummary(summaryData) {
+        const {
+            weekStart,
+            weekEnd,
+            totalExpenses,
+            totalIncome,
+            balance,
+            transactionsCount,
+            topCategories,
+            avgDailyExpense,
+            budgetStatus
+        } = summaryData;
+
+        const balanceEmoji = balance >= 0 ? '✅' : '❌';
+        const balanceText = balance >= 0 ? 'Positivo' : 'Negativo';
+
+        let categoriesText = '';
+        if (topCategories && topCategories.length > 0) {
+            categoriesText = '\n\n📊 <b>Top 3 Categorías de Gastos:</b>\n';
+            topCategories.slice(0, 3).forEach((cat, index) => {
+                categoriesText += `${index + 1}. ${cat.name}: ${this.formatCurrency(cat.amount)}\n`;
+            });
+        }
+
+        let budgetText = '';
+        if (budgetStatus && budgetStatus.exceeded > 0) {
+            budgetText = `\n⚠️ <b>${budgetStatus.exceeded}</b> presupuesto(s) excedido(s)`;
+        }
+
+        const message = `
+📈 <b>RESUMEN SEMANAL</b>
+📅 Del ${weekStart} al ${weekEnd}
+
+💰 Ingresos: ${this.formatCurrency(totalIncome)}
+💸 Gastos: ${this.formatCurrency(totalExpenses)}
+${balanceEmoji} Balance: ${this.formatCurrency(balance)} (${balanceText})
+
+📊 Promedio diario: ${this.formatCurrency(avgDailyExpense || 0)}
+📝 Transacciones: ${transactionsCount}${categoriesText}${budgetText}
+
+${balance >= 0
+    ? '🎉 ¡Excelente semana! Mantén el control de tus finanzas.'
+    : '💡 Considera revisar tus gastos para la próxima semana.'
+}
+        `.trim();
+
+        return this.sendMessage(message);
+    }
+
+    /**
+     * Envía resumen mensual
+     */
+    async sendMonthlySummary(summaryData) {
+        const {
+            month,
+            year,
+            totalExpenses,
+            totalIncome,
+            balance,
+            transactionsCount,
+            topCategories,
+            avgDailyExpense,
+            budgetStatus,
+            comparedToLastMonth
+        } = summaryData;
+
+        const balanceEmoji = balance >= 0 ? '✅' : '❌';
+        const balanceText = balance >= 0 ? 'Positivo' : 'Negativo';
+
+        let categoriesText = '';
+        if (topCategories && topCategories.length > 0) {
+            categoriesText = '\n\n📊 <b>Top 5 Categorías:</b>\n';
+            topCategories.slice(0, 5).forEach((cat, index) => {
+                const emoji = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'][index];
+                categoriesText += `${emoji} ${cat.name}: ${this.formatCurrency(cat.amount)}\n`;
+            });
+        }
+
+        let budgetText = '';
+        if (budgetStatus) {
+            budgetText = `\n\n💰 <b>Estado de Presupuestos:</b>\n`;
+            budgetText += `✅ En control: ${budgetStatus.onTrack || 0}\n`;
+            budgetText += `⚠️ En alerta: ${budgetStatus.warning || 0}\n`;
+            budgetText += `🚨 Excedidos: ${budgetStatus.exceeded || 0}`;
+        }
+
+        let comparisonText = '';
+        if (comparedToLastMonth) {
+            const diff = totalExpenses - comparedToLastMonth;
+            const emoji = diff > 0 ? '📈' : '📉';
+            const action = diff > 0 ? 'aumentaron' : 'disminuyeron';
+            comparisonText = `\n\n${emoji} Los gastos ${action} ${this.formatCurrency(Math.abs(diff))} vs. mes anterior`;
+        }
+
+        const message = `
+📆 <b>RESUMEN MENSUAL</b>
+🗓️ ${month} ${year}
+
+💰 Ingresos totales: ${this.formatCurrency(totalIncome)}
+💸 Gastos totales: ${this.formatCurrency(totalExpenses)}
+${balanceEmoji} Balance final: ${this.formatCurrency(balance)} (${balanceText})
+
+📊 Promedio diario: ${this.formatCurrency(avgDailyExpense || 0)}
+📝 Total de transacciones: ${transactionsCount}${categoriesText}${budgetText}${comparisonText}
+
+${balance >= 0
+    ? '🎉 ¡Excelente mes! Tus finanzas están en buen estado.'
+    : '💡 Considera ajustar tus presupuestos para el próximo mes.'
 }
         `.trim();
 

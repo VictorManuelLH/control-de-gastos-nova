@@ -3,6 +3,7 @@ import { loadNotes, loadTransactions } from "../../helper"
 import { clearNotesLogout, setNotes } from "../journal/journalSlice"
 import { clearTransactionsLogout, setTransactions } from "../expenses/expensesSlice"
 import { clearBudgetsLogout, setBudgets } from "../budgets/budgetsSlice"
+import { clearRecurringsLogout } from "../recurring/recurringSlice"
 import { checkingCredentiales, login, logout } from "./authSlice"
 import { startLoadingBudgets } from "../budgets/thunks"
 
@@ -51,6 +52,7 @@ export const startLogout = () => {
         dispatch( clearNotesLogout() )
         dispatch( clearTransactionsLogout() )
         dispatch( clearBudgetsLogout() )
+        dispatch( clearRecurringsLogout() )
         dispatch( logout() )
     }
 }

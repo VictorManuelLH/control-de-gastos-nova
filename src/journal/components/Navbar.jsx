@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LogoutOutlined, AccountBalanceWallet, CalendarMonth, WbSunny, Brightness3, Receipt, StickyNote2, Palette, PictureAsPdf, Description, BarChart, Assessment } from "@mui/icons-material";
-import { AppBar, Box, IconButton, Toolbar, Typography, Tooltip, Chip, Stack, alpha, Button, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { LogoutOutlined, AccountBalanceWallet, CalendarMonth, WbSunny, Brightness3, Receipt, Palette, PictureAsPdf, Description, BarChart, Assessment, Settings, Telegram, Notifications, Badge, Repeat } from "@mui/icons-material";
+import { AppBar, Box, IconButton, Toolbar, Typography, Tooltip, Chip, Stack, alpha, Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge as MuiBadge } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { startLogout } from "../../store/auth/thunks";
 import { useThemeContext } from "../../context";
 import { themeMetadata } from "../../theme/themes";
-import { pdfService } from "../../services";
+import { pdfService, pwaNotificationService } from "../../services";
 import { captureMultipleCharts, waitForChartsToRender } from "../../utils";
+import { NotificationCenter } from "./";
 
 export const Navbar = ({ drawerWidth = 240 }) => {
     const dispatch = useDispatch();
@@ -19,6 +20,9 @@ export const Navbar = ({ drawerWidth = 240 }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
     const { currentTheme, toggleTheme } = useThemeContext();
     const [pdfMenuAnchor, setPdfMenuAnchor] = useState(null);
+    const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
+    const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const isExpensesPage = location.pathname === '/expenses';
     const themeInfo = themeMetadata[currentTheme] || themeMetadata.light;
@@ -29,6 +33,19 @@ export const Navbar = ({ drawerWidth = 240 }) => {
         }, 60000); // Actualiza cada minuto
 
         return () => clearInterval(timer);
+    }, []);
+
+    // Suscribirse a notificaciones
+    useEffect(() => {
+        // Cargar contador inicial
+        setUnreadCount(pwaNotificationService.getUnreadCount());
+
+        // Suscribirse a cambios
+        const unsubscribe = pwaNotificationService.subscribe((notifications, newUnreadCount) => {
+            setUnreadCount(newUnreadCount);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const onLogout = () => {
@@ -60,6 +77,29 @@ export const Navbar = ({ drawerWidth = 240 }) => {
 
     const handleClosePdfMenu = () => {
         setPdfMenuAnchor(null);
+    };
+
+    const handleOpenSettingsMenu = (event) => {
+        setSettingsMenuAnchor(event.currentTarget);
+    };
+
+    const handleCloseSettingsMenu = () => {
+        setSettingsMenuAnchor(null);
+    };
+
+    const handleNavigateToTelegram = () => {
+        navigate('/telegram');
+        handleCloseSettingsMenu();
+    };
+
+    const handleNavigateToNotifications = () => {
+        navigate('/notifications');
+        handleCloseSettingsMenu();
+    };
+
+    const handleNavigateToRecurring = () => {
+        navigate('/recurring');
+        handleCloseSettingsMenu();
     };
 
     const handleDownloadTransactionsReport = () => {
@@ -340,27 +380,6 @@ export const Navbar = ({ drawerWidth = 240 }) => {
 
                 {/* Botones de navegación */}
                 <Stack direction="row" spacing={1} sx={{ ml: 2 }}>
-                    <Tooltip title="Notas" arrow>
-                        <Button
-                            onClick={() => navigate('/')}
-                            variant={!isExpensesPage ? "contained" : "outlined"}
-                            size="small"
-                            startIcon={<StickyNote2 />}
-                            sx={{
-                                color: 'white',
-                                borderColor: 'rgba(255, 255, 255, 0.3)',
-                                bgcolor: !isExpensesPage ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
-                                backdropFilter: 'blur(10px)',
-                                '&:hover': {
-                                    bgcolor: 'rgba(255, 255, 255, 0.4)',
-                                    borderColor: 'rgba(255, 255, 255, 0.5)'
-                                },
-                                display: { xs: 'none', sm: 'flex' }
-                            }}
-                        >
-                            Notas
-                        </Button>
-                    </Tooltip>
                     <Tooltip title="Gastos" arrow>
                         <Button
                             onClick={() => navigate('/expenses')}
@@ -384,23 +403,6 @@ export const Navbar = ({ drawerWidth = 240 }) => {
                     </Tooltip>
 
                     {/* Versión móvil - Solo iconos */}
-                    <Tooltip title="Notas" arrow>
-                        <IconButton
-                            onClick={() => navigate('/')}
-                            sx={{
-                                display: { xs: 'flex', sm: 'none' },
-                                color: 'white',
-                                bgcolor: !isExpensesPage ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
-                                border: '1px solid rgba(255, 255, 255, 0.3)',
-                                backdropFilter: 'blur(10px)',
-                                '&:hover': {
-                                    bgcolor: 'rgba(255, 255, 255, 0.4)'
-                                }
-                            }}
-                        >
-                            <StickyNote2 />
-                        </IconButton>
-                    </Tooltip>
                     <Tooltip title="Gastos" arrow>
                         <IconButton
                             onClick={() => navigate('/expenses')}
@@ -419,6 +421,104 @@ export const Navbar = ({ drawerWidth = 240 }) => {
                         </IconButton>
                     </Tooltip>
                 </Stack>
+
+                {/* Botón de notificaciones */}
+                <Tooltip title="Notificaciones" arrow>
+                    <IconButton
+                        onClick={() => setNotificationCenterOpen(true)}
+                        sx={{
+                            ml: { xs: 1, sm: 2 },
+                            bgcolor: 'rgba(255, 255, 255, 0.2)',
+                            color: 'white',
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            backdropFilter: 'blur(10px)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                bgcolor: 'rgba(255, 255, 255, 0.3)',
+                                transform: 'scale(1.05)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                            }
+                        }}
+                    >
+                        <MuiBadge
+                            badgeContent={unreadCount}
+                            color="error"
+                            max={99}
+                            sx={{
+                                '& .MuiBadge-badge': {
+                                    fontWeight: 700,
+                                    fontSize: '0.7rem'
+                                }
+                            }}
+                        >
+                            <Notifications />
+                        </MuiBadge>
+                    </IconButton>
+                </Tooltip>
+
+                {/* Botón de configuración */}
+                <Tooltip title="Configuración" arrow>
+                    <IconButton
+                        onClick={handleOpenSettingsMenu}
+                        sx={{
+                            ml: { xs: 1, sm: 2 },
+                            bgcolor: 'rgba(255, 255, 255, 0.2)',
+                            color: 'white',
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            backdropFilter: 'blur(10px)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                bgcolor: 'rgba(255, 255, 255, 0.3)',
+                                transform: 'scale(1.05)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                            }
+                        }}
+                    >
+                        <Settings />
+                    </IconButton>
+                </Tooltip>
+
+                {/* Menú de configuración */}
+                <Menu
+                    anchorEl={settingsMenuAnchor}
+                    open={Boolean(settingsMenuAnchor)}
+                    onClose={handleCloseSettingsMenu}
+                    PaperProps={{
+                        sx: {
+                            borderRadius: 2,
+                            mt: 1,
+                            minWidth: 250
+                        }
+                    }}
+                >
+                    <MenuItem onClick={handleNavigateToTelegram}>
+                        <ListItemIcon>
+                            <Telegram fontSize="small" color="primary" />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Telegram"
+                            secondary="Configurar bot de Telegram"
+                        />
+                    </MenuItem>
+                    <MenuItem onClick={handleNavigateToNotifications}>
+                        <ListItemIcon>
+                            <Notifications fontSize="small" color="secondary" />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Notificaciones"
+                            secondary="Preferencias de alertas"
+                        />
+                    </MenuItem>
+                    <MenuItem onClick={handleNavigateToRecurring}>
+                        <ListItemIcon>
+                            <Repeat fontSize="small" sx={{ color: '#9c27b0' }} />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Gastos Recurrentes"
+                            secondary="Suscripciones y pagos fijos"
+                        />
+                    </MenuItem>
+                </Menu>
 
                 {/* Botón de logout */}
                 <Tooltip title="Cerrar sesión" arrow>
@@ -442,6 +542,12 @@ export const Navbar = ({ drawerWidth = 240 }) => {
                     </IconButton>
                 </Tooltip>
             </Toolbar>
+
+            {/* Centro de Notificaciones */}
+            <NotificationCenter
+                open={notificationCenterOpen}
+                onClose={() => setNotificationCenterOpen(false)}
+            />
         </AppBar>
     );
 };

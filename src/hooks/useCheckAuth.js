@@ -5,6 +5,7 @@ import { FireBaseAuth } from "../firebase/config"
 import { login, logout } from "../store/auth"
 import { startLoadingNotes } from "../store/auth/thunks"
 import { startLoadingBudgets } from "../store/budgets/thunks"
+import { startLoadingRecurrings } from "../store/recurring/thunks"
 
 export const useCheckAuth = () => {
 
@@ -31,6 +32,9 @@ export const useCheckAuth = () => {
 
             console.log('💰 useCheckAuth - Iniciando carga de presupuestos...');
             dispatch( startLoadingBudgets() );
+
+            console.log('🔄 useCheckAuth - Iniciando carga de gastos recurrentes...');
+            dispatch( startLoadingRecurrings() );
         })
 
     }, [])

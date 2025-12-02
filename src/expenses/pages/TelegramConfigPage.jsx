@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
     Box,
     Container,
@@ -16,7 +17,8 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Chip
+    Chip,
+    Grid
 } from '@mui/material';
 import {
     Telegram,
@@ -26,10 +28,13 @@ import {
     Info,
     ExpandMore,
     ExpandLess,
-    DeleteOutline
+    DeleteOutline,
+    Today,
+    CalendarMonth,
+    Assessment
 } from '@mui/icons-material';
 import { Navbar } from '../../journal/components';
-import { telegramService } from '../../services';
+import { telegramService, summaryService, notificationTrackingService, pwaNotificationService } from '../../services';
 import Swal from 'sweetalert2';
 
 export const TelegramConfigPage = () => {
@@ -39,6 +44,10 @@ export const TelegramConfigPage = () => {
     const [testResult, setTestResult] = useState(null);
     const [showInstructions, setShowInstructions] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    // Obtener transacciones y presupuestos de Redux
+    const { transactions } = useSelector(state => state.expenses);
+    const { budgets } = useSelector(state => state.budgets);
 
     useEffect(() => {
         // Cargar configuración existente
@@ -152,6 +161,93 @@ export const TelegramConfigPage = () => {
                 icon: 'success',
                 timer: 2000,
                 showConfirmButton: false
+            });
+        }
+    };
+
+    const handleSendDailySummary = async () => {
+        setLoading(true);
+
+        const summaryData = summaryService.generateDailySummary(transactions);
+        const result = await telegramService.sendDailySummary(summaryData);
+
+        setLoading(false);
+
+        if (result.success) {
+            notificationTrackingService.markSummaryAsSent('daily');
+            // Enviar notificación PWA de éxito
+            pwaNotificationService.notifySummarySent('daily');
+            Swal.fire({
+                title: '¡Resumen enviado!',
+                text: 'Revisa tu Telegram',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                title: 'Error al enviar',
+                text: result.error,
+                icon: 'error',
+                confirmButtonText: 'Entendido'
+            });
+        }
+    };
+
+    const handleSendWeeklySummary = async () => {
+        setLoading(true);
+
+        const summaryData = summaryService.generateWeeklySummary(transactions, budgets);
+        const result = await telegramService.sendWeeklySummary(summaryData);
+
+        setLoading(false);
+
+        if (result.success) {
+            notificationTrackingService.markSummaryAsSent('weekly');
+            // Enviar notificación PWA de éxito
+            pwaNotificationService.notifySummarySent('weekly');
+            Swal.fire({
+                title: '¡Resumen enviado!',
+                text: 'Revisa tu Telegram',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                title: 'Error al enviar',
+                text: result.error,
+                icon: 'error',
+                confirmButtonText: 'Entendido'
+            });
+        }
+    };
+
+    const handleSendMonthlySummary = async () => {
+        setLoading(true);
+
+        const summaryData = summaryService.generateMonthlySummary(transactions, budgets);
+        const result = await telegramService.sendMonthlySummary(summaryData);
+
+        setLoading(false);
+
+        if (result.success) {
+            notificationTrackingService.markSummaryAsSent('monthly');
+            // Enviar notificación PWA de éxito
+            pwaNotificationService.notifySummarySent('monthly');
+            Swal.fire({
+                title: '¡Resumen enviado!',
+                text: 'Revisa tu Telegram',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                title: 'Error al enviar',
+                text: result.error,
+                icon: 'error',
+                confirmButtonText: 'Entendido'
             });
         }
     };
@@ -362,6 +458,135 @@ export const TelegramConfigPage = () => {
                                 </Alert>
                             )}
                         </Stack>
+
+                        {isConfigured && (
+                            <>
+                                <Divider sx={{ my: 4 }} />
+
+                                {/* Enviar resúmenes */}
+                                <Box>
+                                    <Typography variant="h6" fontWeight={600} gutterBottom>
+                                        📊 Enviar Resúmenes
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                        Envía un resumen de tus finanzas a Telegram
+                                    </Typography>
+
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={4}>
+                                            <Paper
+                                                elevation={0}
+                                                sx={{
+                                                    p: 2,
+                                                    textAlign: 'center',
+                                                    bgcolor: '#e3f2fd',
+                                                    borderLeft: '4px solid #2196f3',
+                                                    height: '100%',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1
+                                                }}
+                                            >
+                                                <Today sx={{ fontSize: 40, color: '#2196f3', mx: 'auto' }} />
+                                                <Typography variant="subtitle2" fontWeight={600}>
+                                                    Resumen Diario
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Transacciones de hoy
+                                                </Typography>
+                                                <Button
+                                                    variant="contained"
+                                                    size="small"
+                                                    onClick={handleSendDailySummary}
+                                                    disabled={loading}
+                                                    sx={{
+                                                        mt: 'auto',
+                                                        bgcolor: '#2196f3',
+                                                        '&:hover': { bgcolor: '#1976d2' }
+                                                    }}
+                                                >
+                                                    Enviar
+                                                </Button>
+                                            </Paper>
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={4}>
+                                            <Paper
+                                                elevation={0}
+                                                sx={{
+                                                    p: 2,
+                                                    textAlign: 'center',
+                                                    bgcolor: '#f3e5f5',
+                                                    borderLeft: '4px solid #9c27b0',
+                                                    height: '100%',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1
+                                                }}
+                                            >
+                                                <CalendarMonth sx={{ fontSize: 40, color: '#9c27b0', mx: 'auto' }} />
+                                                <Typography variant="subtitle2" fontWeight={600}>
+                                                    Resumen Semanal
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Últimos 7 días
+                                                </Typography>
+                                                <Button
+                                                    variant="contained"
+                                                    size="small"
+                                                    onClick={handleSendWeeklySummary}
+                                                    disabled={loading}
+                                                    sx={{
+                                                        mt: 'auto',
+                                                        bgcolor: '#9c27b0',
+                                                        '&:hover': { bgcolor: '#7b1fa2' }
+                                                    }}
+                                                >
+                                                    Enviar
+                                                </Button>
+                                            </Paper>
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={4}>
+                                            <Paper
+                                                elevation={0}
+                                                sx={{
+                                                    p: 2,
+                                                    textAlign: 'center',
+                                                    bgcolor: '#e8f5e9',
+                                                    borderLeft: '4px solid #4caf50',
+                                                    height: '100%',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1
+                                                }}
+                                            >
+                                                <Assessment sx={{ fontSize: 40, color: '#4caf50', mx: 'auto' }} />
+                                                <Typography variant="subtitle2" fontWeight={600}>
+                                                    Resumen Mensual
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Mes actual completo
+                                                </Typography>
+                                                <Button
+                                                    variant="contained"
+                                                    size="small"
+                                                    onClick={handleSendMonthlySummary}
+                                                    disabled={loading}
+                                                    sx={{
+                                                        mt: 'auto',
+                                                        bgcolor: '#4caf50',
+                                                        '&:hover': { bgcolor: '#388e3c' }
+                                                    }}
+                                                >
+                                                    Enviar
+                                                </Button>
+                                            </Paper>
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                            </>
+                        )}
 
                         <Divider sx={{ my: 4 }} />
 
