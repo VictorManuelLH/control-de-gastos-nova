@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LogoutOutlined, AccountBalanceWallet, CalendarMonth, WbSunny, Brightness3, Receipt, Palette, PictureAsPdf, Description, BarChart, Assessment, Settings, Telegram, Notifications, Badge, Repeat } from "@mui/icons-material";
+import { LogoutOutlined, AccountBalanceWallet, CalendarMonth, WbSunny, Brightness3, Receipt, Palette, PictureAsPdf, Description, BarChart, Assessment, Settings, Telegram, Notifications, Badge, Repeat, Dashboard, StickyNote2 } from "@mui/icons-material";
 import { AppBar, Box, IconButton, Toolbar, Typography, Tooltip, Chip, Stack, alpha, Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge as MuiBadge } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { startLogout } from "../../store/auth/thunks";
@@ -25,6 +25,8 @@ export const Navbar = ({ drawerWidth = 240 }) => {
     const [unreadCount, setUnreadCount] = useState(0);
 
     const isExpensesPage = location.pathname === '/expenses';
+    const isDashboardPage = location.pathname === '/';
+    const isNotesPage = location.pathname === '/notes';
     const themeInfo = themeMetadata[currentTheme] || themeMetadata.light;
 
     useEffect(() => {
@@ -380,6 +382,30 @@ export const Navbar = ({ drawerWidth = 240 }) => {
 
                 {/* Botones de navegación */}
                 <Stack direction="row" spacing={1} sx={{ ml: 2 }}>
+                    {/* Dashboard - Desktop */}
+                    <Tooltip title="Dashboard" arrow>
+                        <Button
+                            onClick={() => navigate('/')}
+                            variant={isDashboardPage ? "contained" : "outlined"}
+                            size="small"
+                            startIcon={<Dashboard />}
+                            sx={{
+                                color: 'white',
+                                borderColor: 'rgba(255, 255, 255, 0.3)',
+                                bgcolor: isDashboardPage ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
+                                backdropFilter: 'blur(10px)',
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.4)',
+                                    borderColor: 'rgba(255, 255, 255, 0.5)'
+                                },
+                                display: { xs: 'none', sm: 'flex' }
+                            }}
+                        >
+                            Dashboard
+                        </Button>
+                    </Tooltip>
+
+                    {/* Gastos - Desktop */}
                     <Tooltip title="Gastos" arrow>
                         <Button
                             onClick={() => navigate('/expenses')}
@@ -402,7 +428,48 @@ export const Navbar = ({ drawerWidth = 240 }) => {
                         </Button>
                     </Tooltip>
 
+                    {/* Notas - Desktop */}
+                    <Tooltip title="Notas" arrow>
+                        <Button
+                            onClick={() => navigate('/notes')}
+                            variant={isNotesPage ? "contained" : "outlined"}
+                            size="small"
+                            startIcon={<StickyNote2 />}
+                            sx={{
+                                color: 'white',
+                                borderColor: 'rgba(255, 255, 255, 0.3)',
+                                bgcolor: isNotesPage ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
+                                backdropFilter: 'blur(10px)',
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.4)',
+                                    borderColor: 'rgba(255, 255, 255, 0.5)'
+                                },
+                                display: { xs: 'none', sm: 'flex' }
+                            }}
+                        >
+                            Notas
+                        </Button>
+                    </Tooltip>
+
                     {/* Versión móvil - Solo iconos */}
+                    <Tooltip title="Dashboard" arrow>
+                        <IconButton
+                            onClick={() => navigate('/')}
+                            sx={{
+                                display: { xs: 'flex', sm: 'none' },
+                                color: 'white',
+                                bgcolor: isDashboardPage ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                backdropFilter: 'blur(10px)',
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.4)'
+                                }
+                            }}
+                        >
+                            <Dashboard />
+                        </IconButton>
+                    </Tooltip>
+
                     <Tooltip title="Gastos" arrow>
                         <IconButton
                             onClick={() => navigate('/expenses')}
@@ -418,6 +485,24 @@ export const Navbar = ({ drawerWidth = 240 }) => {
                             }}
                         >
                             <Receipt />
+                        </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Notas" arrow>
+                        <IconButton
+                            onClick={() => navigate('/notes')}
+                            sx={{
+                                display: { xs: 'flex', sm: 'none' },
+                                color: 'white',
+                                bgcolor: isNotesPage ? 'rgba(255, 255, 255, 0.3)' : 'transparent',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                backdropFilter: 'blur(10px)',
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.4)'
+                                }
+                            }}
+                        >
+                            <StickyNote2 />
                         </IconButton>
                     </Tooltip>
                 </Stack>
