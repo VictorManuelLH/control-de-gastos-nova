@@ -19,11 +19,19 @@ export const JournalLayout = ({ children }) => {
 
             <SideBar drawerWidth={drawerWidth} openSidebar={mobileOpen} setOpen={handleDrawerToggle} />
 
-            <Box 
-                component="main" 
-                sx={{ flexGrow: 1, p: 3 }} >
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: { xs: 2, sm: 3 },
+                    pb: { xs: 10, sm: 3 }, // Padding inferior extra en móvil para bottom nav
+                    width: '100%',
+                    maxWidth: '100vw',
+                    overflowX: 'hidden'
+                }}
+            >
 
-                <Toolbar />
+                <Toolbar sx={{ minHeight: { xs: '56px', sm: '64px' } }} />
 
                 { children }
 

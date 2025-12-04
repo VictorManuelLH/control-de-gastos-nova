@@ -50,13 +50,11 @@ export const TelegramConfigPage = () => {
     const { budgets } = useSelector(state => state.budgets);
 
     useEffect(() => {
-        // Cargar configuración existente
-        const configured = telegramService.loadConfig();
-        setIsConfigured(configured);
-        if (configured) {
-            setBotToken(telegramService.botToken || '');
-            setChatId(telegramService.chatId || '');
-        }
+        // Cargar configuración preconfigurada
+        telegramService.loadConfig();
+        setIsConfigured(true); // Siempre configurado con credenciales predefinidas
+        setBotToken(telegramService.botToken || '');
+        setChatId(telegramService.chatId || '');
     }, []);
 
     const handleSaveConfig = () => {
@@ -260,29 +258,31 @@ export const TelegramConfigPage = () => {
                 component="main"
                 sx={{
                     flexGrow: 1,
-                    p: 3,
+                    p: { xs: 2, sm: 3 },
+                    pb: { xs: 10, sm: 3 },
                     width: { sm: `calc(100% - 240px)` },
                     ml: { sm: `240px` },
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    minHeight: '100vh'
+                    minHeight: '100vh',
+                    overflowX: 'hidden'
                 }}
             >
-                <Container maxWidth="md" sx={{ pt: 4, pb: 10 }}>
+                <Container maxWidth="md" sx={{ pt: { xs: 10, sm: 4 }, pb: { xs: 12, sm: 10 } }}>
                     <Paper
                         sx={{
-                            p: 4,
-                            borderRadius: 3,
+                            p: { xs: 2.5, sm: 4 },
+                            borderRadius: { xs: 2, sm: 3 },
                             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
                         }}
                     >
                         {/* Header */}
-                        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
-                            <Telegram sx={{ fontSize: 48, color: '#0088cc' }} />
+                        <Stack direction="row" alignItems="center" spacing={{ xs: 1.5, sm: 2 }} sx={{ mb: 3 }}>
+                            <Telegram sx={{ fontSize: { xs: 36, sm: 48 }, color: '#0088cc' }} />
                             <Box>
-                                <Typography variant="h4" fontWeight={700}>
+                                <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
                                     Configuración de Telegram
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                                     Recibe notificaciones de tus finanzas en tiempo real
                                 </Typography>
                             </Box>
@@ -291,180 +291,60 @@ export const TelegramConfigPage = () => {
                         <Divider sx={{ mb: 3 }} />
 
                         {/* Status Badge */}
-                        {isConfigured && (
-                            <Alert severity="success" sx={{ mb: 3 }}>
-                                <AlertTitle sx={{ fontWeight: 700 }}>✅ Telegram Configurado</AlertTitle>
-                                Las notificaciones están activas. Recibirás alertas importantes.
+                        <Alert severity="success" sx={{ mb: 3 }}>
+                            <AlertTitle sx={{ fontWeight: 700 }}>✅ Telegram Configurado</AlertTitle>
+                            Tu bot de Telegram está listo y activo. Recibirás notificaciones automáticamente.
+                        </Alert>
+
+                        {/* Botones de prueba */}
+                        <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap sx={{ mb: 3 }}>
+                            <Button
+                                variant="outlined"
+                                startIcon={<Info />}
+                                onClick={handleTestConnection}
+                                disabled={loading}
+                                size="small"
+                            >
+                                Probar Conexión
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                startIcon={<Send />}
+                                onClick={handleSendTestMessage}
+                                disabled={loading}
+                                color="success"
+                                size="small"
+                            >
+                                Enviar Mensaje de Prueba
+                            </Button>
+                        </Stack>
+
+                        {/* Resultado de prueba */}
+                        {testResult && (
+                            <Alert
+                                severity={testResult.success ? 'success' : 'error'}
+                                icon={testResult.success ? <Check /> : <Close />}
+                                sx={{ mb: 3 }}
+                            >
+                                {testResult.success ? (
+                                    <>
+                                        <AlertTitle>✅ Conexión Exitosa</AlertTitle>
+                                        Bot: @{testResult.botUsername} ({testResult.botName})
+                                    </>
+                                ) : (
+                                    <>
+                                        <AlertTitle>❌ Error de Conexión</AlertTitle>
+                                        {testResult.error}
+                                    </>
+                                )}
                             </Alert>
                         )}
 
-                        {/* Instrucciones */}
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                bgcolor: '#f5f5f5',
-                                borderRadius: 2,
-                                mb: 3,
-                                cursor: 'pointer'
-                            }}
-                            onClick={() => setShowInstructions(!showInstructions)}
-                        >
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Info color="primary" />
-                                    <Typography variant="subtitle2" fontWeight={600}>
-                                        ¿Cómo obtener mis credenciales?
-                                    </Typography>
-                                </Stack>
-                                <IconButton size="small">
-                                    {showInstructions ? <ExpandLess /> : <ExpandMore />}
-                                </IconButton>
-                            </Stack>
+                        <Divider sx={{ my: 4 }} />
 
-                            <Collapse in={showInstructions}>
-                                <Divider sx={{ my: 2 }} />
-                                <Typography variant="caption" color="text.secondary" component="div">
-                                    <List dense>
-                                        <ListItem>
-                                            <ListItemIcon>
-                                                <Chip label="1" size="small" color="primary" />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary="Abre Telegram y busca @BotFather"
-                                                secondary="Envía /newbot y sigue las instrucciones"
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemIcon>
-                                                <Chip label="2" size="small" color="primary" />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary="Copia el Token que te da BotFather"
-                                                secondary="Se ve como: 110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw"
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemIcon>
-                                                <Chip label="3" size="small" color="primary" />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary="Busca tu bot en Telegram y envíale /start"
-                                                secondary="Esto inicia la conversación con el bot"
-                                            />
-                                        </ListItem>
-                                        <ListItem>
-                                            <ListItemIcon>
-                                                <Chip label="4" size="small" color="primary" />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary="Visita: https://api.telegram.org/bot[TU_TOKEN]/getUpdates"
-                                                secondary="Busca el campo 'chat':{'id': XXXXXXX} - Ese es tu Chat ID"
-                                            />
-                                        </ListItem>
-                                    </List>
-                                </Typography>
-                            </Collapse>
-                        </Paper>
-
-                        {/* Formulario */}
-                        <Stack spacing={3}>
-                            <TextField
-                                fullWidth
-                                label="Bot Token"
-                                placeholder="110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw"
-                                value={botToken}
-                                onChange={(e) => setBotToken(e.target.value)}
-                                helperText="Token proporcionado por @BotFather"
-                                InputProps={{
-                                    startAdornment: <Telegram sx={{ mr: 1, color: 'action.active' }} />
-                                }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                label="Chat ID"
-                                placeholder="123456789"
-                                value={chatId}
-                                onChange={(e) => setChatId(e.target.value)}
-                                helperText="Tu ID personal de chat en Telegram"
-                                type="number"
-                            />
-
-                            {/* Botones de acción */}
-                            <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
-                                <Button
-                                    variant="contained"
-                                    startIcon={<Check />}
-                                    onClick={handleSaveConfig}
-                                    sx={{
-                                        bgcolor: '#0088cc',
-                                        '&:hover': { bgcolor: '#006699' }
-                                    }}
-                                >
-                                    Guardar Configuración
-                                </Button>
-
-                                {isConfigured && (
-                                    <>
-                                        <Button
-                                            variant="outlined"
-                                            startIcon={<Info />}
-                                            onClick={handleTestConnection}
-                                            disabled={loading}
-                                        >
-                                            Probar Conexión
-                                        </Button>
-
-                                        <Button
-                                            variant="outlined"
-                                            startIcon={<Send />}
-                                            onClick={handleSendTestMessage}
-                                            disabled={loading}
-                                            color="success"
-                                        >
-                                            Enviar Mensaje de Prueba
-                                        </Button>
-
-                                        <Button
-                                            variant="outlined"
-                                            startIcon={<DeleteOutline />}
-                                            onClick={handleDeleteConfig}
-                                            color="error"
-                                        >
-                                            Eliminar Configuración
-                                        </Button>
-                                    </>
-                                )}
-                            </Stack>
-
-                            {/* Resultado de prueba */}
-                            {testResult && (
-                                <Alert
-                                    severity={testResult.success ? 'success' : 'error'}
-                                    icon={testResult.success ? <Check /> : <Close />}
-                                >
-                                    {testResult.success ? (
-                                        <>
-                                            <AlertTitle>✅ Conexión Exitosa</AlertTitle>
-                                            Bot: @{testResult.botUsername} ({testResult.botName})
-                                        </>
-                                    ) : (
-                                        <>
-                                            <AlertTitle>❌ Error de Conexión</AlertTitle>
-                                            {testResult.error}
-                                        </>
-                                    )}
-                                </Alert>
-                            )}
-                        </Stack>
-
-                        {isConfigured && (
-                            <>
-                                <Divider sx={{ my: 4 }} />
-
-                                {/* Enviar resúmenes */}
-                                <Box>
+                        {/* Enviar resúmenes */}
+                        <Box>
                                     <Typography variant="h6" fontWeight={600} gutterBottom>
                                         📊 Enviar Resúmenes
                                     </Typography>
@@ -585,8 +465,6 @@ export const TelegramConfigPage = () => {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                            </>
-                        )}
 
                         <Divider sx={{ my: 4 }} />
 

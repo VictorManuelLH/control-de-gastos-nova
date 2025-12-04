@@ -1,4 +1,4 @@
-import { Alert, Button, Grid, Link, TextField, Typography } from "@mui/material"
+import { Alert, Button, Grid, Link, TextField, Typography, Box } from "@mui/material"
 import { Link as RouterLink } from "react-router-dom"
 import { AuthLayout } from "../layout/AuthLayout"
 import { useForm } from "../../hooks"
@@ -39,68 +39,171 @@ export const RegisterPage = () => {
     }
 
     return (
-
-        <AuthLayout title="Crear cuenta" >
-            <form onSubmit={ onSubmit } className="animate__animated animate__fadeIn animate__faster">
-                <Grid container>
-                    <Grid item xs={ 12 } sx={{ mt: 2 }}>
-                        <TextField 
-                            label="Nombre completo" 
-                            type="text" 
-                            placeholder="Nombre completo" 
+        <AuthLayout title="Crear Cuenta">
+            <form onSubmit={onSubmit} className="animate__animated animate__fadeIn animate__faster">
+                <Grid container spacing={2.5}>
+                    {/* Campo de nombre */}
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Nombre Completo"
+                            type="text"
+                            placeholder="Juan Pérez"
                             fullWidth
                             name="displayName"
-                            value={ displayName }
-                            onChange={ onInputChange }
-                            error={ !!displayNameValid && formSubmitted }
-                            helperText={ displayNameValid }/>
+                            value={displayName}
+                            onChange={onInputChange}
+                            error={!!displayNameValid && formSubmitted}
+                            helperText={displayNameValid}
+                            variant="outlined"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 2,
+                                    backgroundColor: '#f8f9fa',
+                                    '&:hover': {
+                                        backgroundColor: '#f0f2f5'
+                                    },
+                                    '&.Mui-focused': {
+                                        backgroundColor: 'white'
+                                    }
+                                }
+                            }}
+                        />
                     </Grid>
-                    
-                    <Grid item xs={ 12 } sx={{ mt: 2 }}>
-                        <TextField 
-                            label="Correo" 
-                            type="email" 
-                            placeholder="correo@google.com" 
+
+                    {/* Campo de correo */}
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Correo Electrónico"
+                            type="email"
+                            placeholder="tu@email.com"
                             fullWidth
                             name="email"
-                            value={ email }
-                            onChange={ onInputChange }
-                            error={ !!emailValid && formSubmitted }
-                            helperText={ emailValid }/>
+                            value={email}
+                            onChange={onInputChange}
+                            error={!!emailValid && formSubmitted}
+                            helperText={emailValid}
+                            variant="outlined"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 2,
+                                    backgroundColor: '#f8f9fa',
+                                    '&:hover': {
+                                        backgroundColor: '#f0f2f5'
+                                    },
+                                    '&.Mui-focused': {
+                                        backgroundColor: 'white'
+                                    }
+                                }
+                            }}
+                        />
                     </Grid>
 
-                    <Grid item xs={ 12 } sx={{ mb: 2, mt: 1 }}>
-                        <TextField 
-                            label="Contraseña" 
-                            type="password" 
-                            placeholder="Contraseña" 
+                    {/* Campo de contraseña */}
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Contraseña"
+                            type="password"
+                            placeholder="••••••••"
                             fullWidth
                             name="password"
-                            value={ password }
-                            onChange={ onInputChange }
-                            error={ !!passwordValid && formSubmitted }
-                            helperText={ passwordValid }/>
+                            value={password}
+                            onChange={onInputChange}
+                            error={!!passwordValid && formSubmitted}
+                            helperText={passwordValid}
+                            variant="outlined"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 2,
+                                    backgroundColor: '#f8f9fa',
+                                    '&:hover': {
+                                        backgroundColor: '#f0f2f5'
+                                    },
+                                    '&.Mui-focused': {
+                                        backgroundColor: 'white'
+                                    }
+                                }
+                            }}
+                        />
                     </Grid>
 
-                    <Grid container spacing={ 2 } sx={{ mb:2, mt:1 }}>
-                        <Grid display={ !!errorMessage ? '' : 'none' } item xs={ 12 } > 
-                            <Alert severity="error" >{ errorMessage }</Alert>
+                    {/* Mensaje de error */}
+                    {!!errorMessage && (
+                        <Grid item xs={12}>
+                            <Alert
+                                severity="error"
+                                sx={{
+                                    borderRadius: 2,
+                                    animation: 'shake 0.5s'
+                                }}
+                            >
+                                {errorMessage}
+                            </Alert>
                         </Grid>
-                        <Grid item xs={ 12 } >
-                            <Button disabled={ isCheckingAuthentication } type="submit" variant='contained' fullWidth >
-                                Crear cuenta
-                            </Button>
-                        </Grid>
+                    )}
+
+                    {/* Botón de registro */}
+                    <Grid item xs={12}>
+                        <Button
+                            disabled={isCheckingAuthentication}
+                            type="submit"
+                            variant="contained"
+                            fullWidth
+                            size="large"
+                            sx={{
+                                borderRadius: 2,
+                                py: 1.5,
+                                fontSize: '1rem',
+                                fontWeight: 600,
+                                textTransform: 'none',
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
+                                    boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
+                                    transform: 'translateY(-1px)'
+                                },
+                                '&:active': {
+                                    transform: 'translateY(0)'
+                                },
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            {isCheckingAuthentication ? 'Creando cuenta...' : 'Crear Cuenta'}
+                        </Button>
                     </Grid>
-                    <Grid container direction='row' justifyContent='end'>
-                        <Typography sx={{ mr: 1 }} >¿Ya tienes cuenta?</Typography>
-                        <Link component={ RouterLink } color='inherit' to="/auth/login" >
-                            Ingresar
-                        </Link>
+
+                    {/* Link para login */}
+                    <Grid item xs={12}>
+                        <Box sx={{ textAlign: 'center', mt: 1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                                ¿Ya tienes una cuenta?{' '}
+                                <Link
+                                    component={RouterLink}
+                                    to="/auth/login"
+                                    sx={{
+                                        color: '#667eea',
+                                        textDecoration: 'none',
+                                        fontWeight: 600,
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                >
+                                    Inicia sesión aquí
+                                </Link>
+                            </Typography>
+                        </Box>
                     </Grid>
                 </Grid>
-            <button type="submit">sd</button>
             </form>
+
+            <style>{`
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-10px); }
+                    75% { transform: translateX(10px); }
+                }
+            `}</style>
         </AuthLayout>
 
     )

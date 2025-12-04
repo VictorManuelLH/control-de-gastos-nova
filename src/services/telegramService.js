@@ -4,9 +4,16 @@
 
 class TelegramService {
     constructor() {
-        this.botToken = null;
-        this.chatId = null;
+        // Credenciales preconfiguradas
+        this.botToken = '8510889477:AAEiifxoTQEUN6NgaHq7QsDzGsA_ZWwrM0Q';
+        this.chatId = '1569499230';
         this.baseUrl = 'https://api.telegram.org/bot';
+
+        // Guardar configuración en localStorage al iniciar
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('telegram_bot_token', this.botToken);
+            localStorage.setItem('telegram_chat_id', this.chatId);
+        }
     }
 
     /**
@@ -25,11 +32,21 @@ class TelegramService {
 
     /**
      * Carga la configuración desde localStorage
+     * Si no existe, usa las credenciales predefinidas
      */
     loadConfig() {
         if (typeof window !== 'undefined') {
-            this.botToken = localStorage.getItem('telegram_bot_token');
-            this.chatId = localStorage.getItem('telegram_chat_id');
+            const storedToken = localStorage.getItem('telegram_bot_token');
+            const storedChatId = localStorage.getItem('telegram_chat_id');
+
+            // Si no hay credenciales guardadas, usar las predefinidas
+            if (!storedToken || !storedChatId) {
+                localStorage.setItem('telegram_bot_token', this.botToken);
+                localStorage.setItem('telegram_chat_id', this.chatId);
+            } else {
+                this.botToken = storedToken;
+                this.chatId = storedChatId;
+            }
         }
         return this.isConfigured();
     }

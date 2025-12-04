@@ -156,6 +156,8 @@ export const Navbar = ({ drawerWidth = 240 }) => {
     };
 
     return (
+        <>
+        {/* AppBar superior para desktop */}
         <AppBar
             position="fixed"
             elevation={0}
@@ -166,7 +168,8 @@ export const Navbar = ({ drawerWidth = 240 }) => {
                 backdropFilter: 'blur(10px)',
                 borderBottom: '1px solid',
                 borderColor: 'rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                display: { xs: 'none', sm: 'block' }
             }}
         >
             <Toolbar sx={{ py: { xs: 0.5, sm: 1 } }}>
@@ -634,5 +637,298 @@ export const Navbar = ({ drawerWidth = 240 }) => {
                 onClose={() => setNotificationCenterOpen(false)}
             />
         </AppBar>
+
+        {/* AppBar superior minimalista para móvil */}
+        <AppBar
+            position="fixed"
+            elevation={0}
+            sx={{
+                display: { xs: 'block', sm: 'none' },
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+            }}
+        >
+            <Toolbar sx={{ minHeight: '56px !important', px: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                    <AccountBalanceWallet sx={{ color: 'white', fontSize: 28 }} />
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontWeight: 700,
+                            fontSize: '1.1rem',
+                            color: 'white',
+                            textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        Control de Gastos
+                    </Typography>
+                </Box>
+
+                {/* Botón de notificaciones móvil */}
+                <IconButton
+                    onClick={() => setNotificationCenterOpen(true)}
+                    sx={{
+                        color: 'white',
+                        bgcolor: 'rgba(255, 255, 255, 0.15)',
+                        '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 0.25)'
+                        }
+                    }}
+                >
+                    <MuiBadge
+                        badgeContent={unreadCount}
+                        color="error"
+                        max={99}
+                    >
+                        <Notifications />
+                    </MuiBadge>
+                </IconButton>
+
+                {/* Botón de configuración móvil */}
+                <IconButton
+                    onClick={handleOpenSettingsMenu}
+                    sx={{
+                        ml: 1,
+                        color: 'white',
+                        bgcolor: 'rgba(255, 255, 255, 0.15)',
+                        '&:hover': {
+                            bgcolor: 'rgba(255, 255, 255, 0.25)'
+                        }
+                    }}
+                >
+                    <Settings />
+                </IconButton>
+            </Toolbar>
+        </AppBar>
+
+        {/* Bottom Navigation para móvil */}
+        <AppBar
+            position="fixed"
+            sx={{
+                top: 'auto',
+                bottom: 0,
+                display: { xs: 'block', sm: 'none' },
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                backdropFilter: 'blur(20px)',
+                boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
+        >
+            <Toolbar
+                sx={{
+                    minHeight: '70px !important',
+                    px: 1,
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    alignItems: 'center'
+                }}
+            >
+                {/* Dashboard */}
+                <Box
+                    onClick={() => navigate('/')}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: '70px',
+                        py: 1,
+                        px: 2,
+                        borderRadius: 2,
+                        bgcolor: isDashboardPage ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        '&:active': {
+                            transform: 'scale(0.95)'
+                        }
+                    }}
+                >
+                    <Dashboard
+                        sx={{
+                            fontSize: 28,
+                            color: 'white',
+                            mb: 0.5,
+                            transition: 'transform 0.3s ease',
+                            transform: isDashboardPage ? 'scale(1.1)' : 'scale(1)'
+                        }}
+                    />
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: 'white',
+                            fontSize: '0.7rem',
+                            fontWeight: isDashboardPage ? 700 : 500,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        Dashboard
+                    </Typography>
+                </Box>
+
+                {/* Gastos */}
+                <Box
+                    onClick={() => navigate('/expenses')}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: '70px',
+                        py: 1,
+                        px: 2,
+                        borderRadius: 2,
+                        bgcolor: isExpensesPage ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        '&:active': {
+                            transform: 'scale(0.95)'
+                        }
+                    }}
+                >
+                    <Receipt
+                        sx={{
+                            fontSize: 28,
+                            color: 'white',
+                            mb: 0.5,
+                            transition: 'transform 0.3s ease',
+                            transform: isExpensesPage ? 'scale(1.1)' : 'scale(1)'
+                        }}
+                    />
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: 'white',
+                            fontSize: '0.7rem',
+                            fontWeight: isExpensesPage ? 700 : 500,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        Gastos
+                    </Typography>
+                </Box>
+
+                {/* Notas */}
+                <Box
+                    onClick={() => navigate('/notes')}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: '70px',
+                        py: 1,
+                        px: 2,
+                        borderRadius: 2,
+                        bgcolor: isNotesPage ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        '&:active': {
+                            transform: 'scale(0.95)'
+                        }
+                    }}
+                >
+                    <StickyNote2
+                        sx={{
+                            fontSize: 28,
+                            color: 'white',
+                            mb: 0.5,
+                            transition: 'transform 0.3s ease',
+                            transform: isNotesPage ? 'scale(1.1)' : 'scale(1)'
+                        }}
+                    />
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: 'white',
+                            fontSize: '0.7rem',
+                            fontWeight: isNotesPage ? 700 : 500,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        Notas
+                    </Typography>
+                </Box>
+
+                {/* PDF */}
+                <Box
+                    onClick={handleOpenPdfMenu}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: '70px',
+                        py: 1,
+                        px: 2,
+                        borderRadius: 2,
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        '&:active': {
+                            transform: 'scale(0.95)'
+                        }
+                    }}
+                >
+                    <PictureAsPdf
+                        sx={{
+                            fontSize: 28,
+                            color: 'white',
+                            mb: 0.5
+                        }}
+                    />
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: 'white',
+                            fontSize: '0.7rem',
+                            fontWeight: 500,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        PDF
+                    </Typography>
+                </Box>
+
+                {/* Logout */}
+                <Box
+                    onClick={onLogout}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: '70px',
+                        py: 1,
+                        px: 2,
+                        borderRadius: 2,
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        '&:active': {
+                            transform: 'scale(0.95)'
+                        }
+                    }}
+                >
+                    <LogoutOutlined
+                        sx={{
+                            fontSize: 28,
+                            color: 'white',
+                            mb: 0.5
+                        }}
+                    />
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: 'white',
+                            fontSize: '0.7rem',
+                            fontWeight: 500,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        Salir
+                    </Typography>
+                </Box>
+            </Toolbar>
+        </AppBar>
+        </>
     );
 };

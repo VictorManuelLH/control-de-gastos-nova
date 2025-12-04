@@ -156,20 +156,25 @@ export const SideBar = ({ drawerWidth = 240 }) => {
                 sx={{
                     display: { xs: 'block', sm: 'none' },
                     position: 'fixed',
-                    top: 16,
+                    top: 64,
                     left: 16,
                     zIndex: 1300,
-                    bgcolor: 'primary.main',
+                    bgcolor: 'rgba(102, 126, 234, 0.95)',
                     color: 'white',
-                    boxShadow: 2,
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                    backdropFilter: 'blur(10px)',
+                    width: 56,
+                    height: 56,
+                    border: '2px solid rgba(255, 255, 255, 0.2)',
                     '&:hover': {
-                        bgcolor: 'primary.dark',
-                        transform: 'scale(1.05)',
+                        bgcolor: 'rgba(118, 75, 162, 0.95)',
+                        transform: 'scale(1.05) rotate(90deg)',
+                        boxShadow: '0 6px 16px rgba(118, 75, 162, 0.4)'
                     },
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
             >
-                <MenuIcon />
+                <MenuIcon sx={{ fontSize: 28 }} />
             </IconButton>
 
             {/* Drawer para pantallas grandes */}
@@ -204,12 +209,17 @@ export const SideBar = ({ drawerWidth = 240 }) => {
                     display: { xs: 'block', sm: 'none' },
                     '& .MuiDrawer-paper': {
                         boxSizing: 'border-box',
-                        width: drawerWidth,
-                        borderRight: '1px solid',
-                        borderColor: 'divider',
-                        boxShadow: '4px 0 12px rgba(0, 0, 0, 0.1)',
+                        width: '85vw',
+                        maxWidth: 320,
+                        borderRight: 'none',
+                        boxShadow: '8px 0 24px rgba(0, 0, 0, 0.15)',
                         display: 'flex',
-                        flexDirection: 'column'
+                        flexDirection: 'column',
+                        background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)'
+                    },
+                    '& .MuiBackdrop-root': {
+                        backgroundColor: 'rgba(102, 126, 234, 0.15)',
+                        backdropFilter: 'blur(4px)'
                     }
                 }}
             >
