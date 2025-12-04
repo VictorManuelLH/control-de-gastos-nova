@@ -200,22 +200,27 @@ export const ExpensesPage = () => {
                     flexGrow: 1,
                     minHeight: '100vh',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    width: '100%',
+                    maxWidth: '100vw',
+                    overflowX: 'hidden'
                 }}
             >
-                <Toolbar />
+                <Toolbar sx={{ minHeight: { xs: '56px', sm: '64px' } }} />
 
-                <Container maxWidth="lg" sx={{ pt: 4, pb: 10 }}>
+                <Container maxWidth="lg" sx={{ pt: { xs: 2, sm: 4 }, pb: { xs: 12, sm: 10 }, px: { xs: 2, sm: 3 } }}>
                 {/* Botón de Descarga PDF */}
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                     <Button
                         variant="contained"
-                        startIcon={<PictureAsPdf />}
+                        startIcon={<PictureAsPdf sx={{ display: { xs: 'none', sm: 'block' } }} />}
                         onClick={handleOpenPdfMenu}
+                        size={{ xs: 'small', sm: 'medium' }}
                         sx={{
                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                             color: 'white',
                             borderRadius: 2,
-                            px: 3,
+                            px: { xs: 2, sm: 3 },
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
                             '&:hover': {
                                 background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
                                 transform: 'translateY(-2px)',
@@ -224,7 +229,7 @@ export const ExpensesPage = () => {
                             transition: 'all 0.3s ease'
                         }}
                     >
-                        Descargar PDF
+                        {window.innerWidth < 600 ? 'PDF' : 'Descargar PDF'}
                     </Button>
                     <Menu
                         anchorEl={pdfMenuAnchor}
@@ -269,32 +274,33 @@ export const ExpensesPage = () => {
                 </Box>
 
                 {/* Header con Estadísticas */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 3, sm: 4 } }}>
                     {/* Balance Total */}
                     <Grid item xs={12} md={4}>
                         <Card
                             sx={{
                                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                 color: 'white',
-                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                                borderRadius: { xs: 2, sm: 1 }
                             }}
                         >
-                            <CardContent>
-                                <Stack direction="row" spacing={2} alignItems="center">
+                            <CardContent sx={{ p: { xs: 2, sm: 2 } }}>
+                                <Stack direction="row" spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
                                     <Avatar
                                         sx={{
                                             bgcolor: 'rgba(255, 255, 255, 0.2)',
-                                            width: 56,
-                                            height: 56
+                                            width: { xs: 48, sm: 56 },
+                                            height: { xs: 48, sm: 56 }
                                         }}
                                     >
-                                        <AccountBalanceWallet />
+                                        <AccountBalanceWallet sx={{ fontSize: { xs: 24, sm: 28 } }} />
                                     </Avatar>
-                                    <Box>
-                                        <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                                    <Box sx={{ minWidth: 0 }}>
+                                        <Typography variant="caption" sx={{ opacity: 0.9, fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                                             Balance Total
                                         </Typography>
-                                        <Typography variant="h5" fontWeight={700}>
+                                        <Typography variant="h5" fontWeight={700} sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                                             {formatCurrency(statistics.balance)}
                                         </Typography>
                                     </Box>
@@ -309,25 +315,26 @@ export const ExpensesPage = () => {
                             sx={{
                                 background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                                 color: 'white',
-                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                                borderRadius: { xs: 2, sm: 1 }
                             }}
                         >
-                            <CardContent>
-                                <Stack direction="row" spacing={2} alignItems="center">
+                            <CardContent sx={{ p: { xs: 2, sm: 2 } }}>
+                                <Stack direction="row" spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
                                     <Avatar
                                         sx={{
                                             bgcolor: 'rgba(255, 255, 255, 0.2)',
-                                            width: 56,
-                                            height: 56
+                                            width: { xs: 48, sm: 56 },
+                                            height: { xs: 48, sm: 56 }
                                         }}
                                     >
-                                        <TrendingUp />
+                                        <TrendingUp sx={{ fontSize: { xs: 24, sm: 28 } }} />
                                     </Avatar>
-                                    <Box>
-                                        <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                                    <Box sx={{ minWidth: 0 }}>
+                                        <Typography variant="caption" sx={{ opacity: 0.9, fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                                             Ingresos
                                         </Typography>
-                                        <Typography variant="h5" fontWeight={700}>
+                                        <Typography variant="h5" fontWeight={700} sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                                             {formatCurrency(statistics.totalIncome)}
                                         </Typography>
                                     </Box>
@@ -342,25 +349,26 @@ export const ExpensesPage = () => {
                             sx={{
                                 background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                                 color: 'white',
-                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                                borderRadius: { xs: 2, sm: 1 }
                             }}
                         >
-                            <CardContent>
-                                <Stack direction="row" spacing={2} alignItems="center">
+                            <CardContent sx={{ p: { xs: 2, sm: 2 } }}>
+                                <Stack direction="row" spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
                                     <Avatar
                                         sx={{
                                             bgcolor: 'rgba(255, 255, 255, 0.2)',
-                                            width: 56,
-                                            height: 56
+                                            width: { xs: 48, sm: 56 },
+                                            height: { xs: 48, sm: 56 }
                                         }}
                                     >
-                                        <TrendingDown />
+                                        <TrendingDown sx={{ fontSize: { xs: 24, sm: 28 } }} />
                                     </Avatar>
-                                    <Box>
-                                        <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                                    <Box sx={{ minWidth: 0 }}>
+                                        <Typography variant="caption" sx={{ opacity: 0.9, fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                                             Gastos
                                         </Typography>
-                                        <Typography variant="h5" fontWeight={700}>
+                                        <Typography variant="h5" fontWeight={700} sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                                             {formatCurrency(statistics.totalExpenses)}
                                         </Typography>
                                     </Box>
@@ -373,8 +381,8 @@ export const ExpensesPage = () => {
                 {/* Acceso Rápido a Presupuestos */}
                 <Card
                     sx={{
-                        borderRadius: 3,
-                        mb: 4,
+                        borderRadius: { xs: 2, sm: 3 },
+                        mb: { xs: 3, sm: 4 },
                         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
@@ -385,7 +393,7 @@ export const ExpensesPage = () => {
                     }}
                     onClick={() => navigate('/budgets')}
                 >
-                    <CardContent sx={{ p: 3 }}>
+                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                         <Stack
                             direction={{ xs: 'column', sm: 'row' }}
                             justifyContent="space-between"
@@ -428,11 +436,11 @@ export const ExpensesPage = () => {
 
                 {/* Sección de Gráficas */}
                 {transactions.length > 0 && (
-                    <Box sx={{ mb: 4 }}>
-                        <Typography variant="h5" fontWeight={700} sx={{ mb: 3, color: 'white' }}>
+                    <Box sx={{ mb: { xs: 3, sm: 4 } }}>
+                        <Typography variant="h5" fontWeight={700} sx={{ mb: { xs: 2, sm: 3 }, color: 'white', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                             Análisis y Estadísticas
                         </Typography>
-                        <Grid container spacing={3}>
+                        <Grid container spacing={{ xs: 2, sm: 3 }}>
                             {/* Gráfica de Pastel - Gastos por Categoría */}
                             <Grid item xs={12} md={6}>
                                 <ExpensesByCategoryChart transactions={transactions} />
@@ -532,11 +540,20 @@ export const ExpensesPage = () => {
                                             </Avatar>
 
                                             {/* Información */}
-                                            <Box sx={{ flex: 1 }}>
-                                                <Typography variant="subtitle1" fontWeight={600}>
+                                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                <Typography
+                                                    variant="subtitle1"
+                                                    fontWeight={600}
+                                                    sx={{
+                                                        fontSize: { xs: '0.9rem', sm: '1rem' },
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
                                                     {transaction.description || category.name}
                                                 </Typography>
-                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 0.5, sm: 1 }} alignItems={{ xs: 'flex-start', sm: 'center' }}>
                                                     <Chip
                                                         label={category.name}
                                                         size="small"
@@ -547,40 +564,42 @@ export const ExpensesPage = () => {
                                                             fontSize: '0.7rem'
                                                         }}
                                                     />
-                                                    <Typography variant="caption" color="text.secondary">
+                                                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
                                                         {formatDate(transaction.date)}
                                                     </Typography>
                                                 </Stack>
                                             </Box>
 
-                                            {/* Monto */}
-                                            <Box sx={{ textAlign: 'right' }}>
+                                            {/* Monto y Acciones en columna para móvil */}
+                                            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-end', sm: 'center' }, gap: { xs: 1, sm: 2 } }}>
+                                                {/* Monto */}
                                                 <Typography
                                                     variant="h6"
                                                     fontWeight={700}
                                                     color={isExpense ? 'error.main' : 'success.main'}
+                                                    sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
                                                 >
                                                     {isExpense ? '-' : '+'}{formatCurrency(transaction.amount)}
                                                 </Typography>
-                                            </Box>
 
-                                            {/* Acciones */}
-                                            <Stack direction="row" spacing={0.5}>
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleOpenModal(transaction)}
-                                                    sx={{ color: 'primary.main' }}
-                                                >
-                                                    <Edit fontSize="small" />
-                                                </IconButton>
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleDeleteTransaction(transaction)}
-                                                    sx={{ color: 'error.main' }}
-                                                >
-                                                    <Delete fontSize="small" />
-                                                </IconButton>
-                                            </Stack>
+                                                {/* Acciones */}
+                                                <Stack direction="row" spacing={0.5}>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleOpenModal(transaction)}
+                                                        sx={{ color: 'primary.main', p: { xs: 0.5, sm: 1 } }}
+                                                    >
+                                                        <Edit fontSize="small" sx={{ fontSize: { xs: 18, sm: 20 } }} />
+                                                    </IconButton>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleDeleteTransaction(transaction)}
+                                                        sx={{ color: 'error.main', p: { xs: 0.5, sm: 1 } }}
+                                                    >
+                                                        <Delete fontSize="small" sx={{ fontSize: { xs: 18, sm: 20 } }} />
+                                                    </IconButton>
+                                                </Stack>
+                                            </Box>
                                         </Paper>
                                     );
                                 })}
@@ -596,9 +615,11 @@ export const ExpensesPage = () => {
                     onClick={() => handleOpenModal()}
                     sx={{
                         position: 'fixed',
-                        bottom: 24,
-                        right: 24,
+                        bottom: { xs: 90, sm: 24 },
+                        right: { xs: 16, sm: 24 },
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        width: { xs: 56, sm: 56 },
+                        height: { xs: 56, sm: 56 },
                         '&:hover': {
                             transform: 'scale(1.1)',
                             boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)'
@@ -606,7 +627,7 @@ export const ExpensesPage = () => {
                         transition: 'all 0.3s ease'
                     }}
                 >
-                    <Add />
+                    <Add sx={{ fontSize: { xs: 28, sm: 24 } }} />
                 </Fab>
 
                 {/* Modal de Transacción */}
