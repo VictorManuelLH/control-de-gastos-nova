@@ -214,12 +214,12 @@ export const ExpensesPage = () => {
                         variant="contained"
                         startIcon={<PictureAsPdf sx={{ display: { xs: 'none', sm: 'block' } }} />}
                         onClick={handleOpenPdfMenu}
-                        size={{ xs: 'small', sm: 'medium' }}
                         sx={{
                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                             color: 'white',
                             borderRadius: 2,
                             px: { xs: 2, sm: 3 },
+                            py: { xs: 0.75, sm: 1 },
                             fontSize: { xs: '0.8rem', sm: '0.875rem' },
                             '&:hover': {
                                 background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
@@ -229,7 +229,8 @@ export const ExpensesPage = () => {
                             transition: 'all 0.3s ease'
                         }}
                     >
-                        {window.innerWidth < 600 ? 'PDF' : 'Descargar PDF'}
+                        <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>PDF</Box>
+                        <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Descargar PDF</Box>
                     </Button>
                     <Menu
                         anchorEl={pdfMenuAnchor}
